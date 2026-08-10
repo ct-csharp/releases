@@ -3,7 +3,7 @@
   "version": "2026.08.09",
   "minimumVersion": "2026.01.01",
   "packageUrl": "https://github.com/ct-csharp/releases/releases/download/ct_flowstock-2026.08.09/CodeTec-FlowStock-Setup-2026.08.09.zip",
-  "sha256": "PUT_SHA256_HASH_HERE",
+  "sha256": "61B1AFA8E2A02817E9ABFCD17DBE180BF09114A950722E3DE1F3F1C75447F1B8",
   "releaseNotesUrl": "https://github.com/ct-csharp/releases/releases/tag/ct_flowstock-2026.08.09",
   "mandatory": false
 }
