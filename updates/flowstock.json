@@ -1,0 +1,8 @@
+{
+  "systemId": "ct_flowstock",
+  "version": "2026.08.10",
+  "minimumVersion": "2026.01.01",
+  "packageUrl": "https://github.com/ct-csharp/releases/download/warehouse-2026.08.10/FlowStock-Warehouse-2026.08.10.zip",
+  "sha256": "AAA111...",
+  "releaseNotesUrl": "https://github.com/ct-csharp/releases/tag/warehouse-2026.08.10"
+}
