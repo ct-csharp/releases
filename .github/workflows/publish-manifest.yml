@@ -1,0 +1,171 @@
+# Belongs in the ct-csharp/releases repository as .github/workflows/publish-manifest.yml
+#
+# Publishing a release becomes one action: create the GitHub Release and attach the MSI.
+# This workflow then writes updates/<systemId>.json from what was actually attached, so the
+# manifest can never advertise a package that does not exist, and the checksum can never be
+# copied from the wrong build.
+#
+# It refuses to publish rather than publish something wrong. Every failure below is a real
+# mistake that would otherwise reach customer machines.
+
+name: Publish update manifest
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+# Two releases published close together must not race each other onto main.
+concurrency:
+  group: publish-manifest
+  cancel-in-progress: false
+
+jobs:
+  manifest:
+    # A pre-release is not something clients should be offered.
+    if: github.event.release.prerelease == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Parse and validate the tag
+        id: tag
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+
+          system_id="${TAG%-*}"
+          version="${TAG##*-}"
+
+          case "$system_id" in
+            ct_flowstock|ct_prime|ct_prime_orca) ;;
+            *)
+              echo "::error::Unknown system id '$system_id' in tag '$TAG'."
+              echo "::error::Expected <systemId>-<version> where systemId is ct_flowstock, ct_prime or ct_prime_orca."
+              exit 1
+              ;;
+          esac
+
+          if ! [[ "$version" =~ ^[0-9]+(\.[0-9]+){1,3}$ ]]; then
+            echo "::error::Version '$version' in tag '$TAG' is not a numeric version."
+            exit 1
+          fi
+
+          echo "system_id=$system_id" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download the released MSI
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          mkdir -p package
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern '*.msi' --dir package
+
+          count=$(find package -maxdepth 1 -name '*.msi' | wc -l)
+          if [ "$count" -ne 1 ]; then
+            echo "::error::Expected exactly one .msi asset on '$TAG', found $count."
+            exit 1
+          fi
+
+      - name: Build the manifest
+        id: build
+        env:
+          SYSTEM_ID: ${{ steps.tag.outputs.system_id }}
+          VERSION: ${{ steps.tag.outputs.version }}
+          TAG: ${{ github.event.release.tag_name }}
+          PUBLISHED_AT: ${{ github.event.release.published_at }}
+          BODY: ${{ github.event.release.body }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          msi=$(find package -maxdepth 1 -name '*.msi')
+          asset=$(basename "$msi")
+          sha256=$(sha256sum "$msi" | cut -d' ' -f1)
+
+          # The asset must belong to this release. Catches re-uploading a previous build,
+          # which the checksum alone would happily bless.
+          if [[ "$asset" != *"$VERSION"* ]]; then
+            echo "::error::Asset '$asset' does not contain version '$VERSION'."
+            exit 1
+          fi
+
+          manifest="updates/${SYSTEM_ID}.json"
+          minimum_version="2026.01.01"
+
+          if [ -f "$manifest" ]; then
+            previous=$(jq -r '.version' "$manifest")
+            minimum_version=$(jq -r '.minimumVersion // "2026.01.01"' "$manifest")
+
+            # A manifest that goes backwards makes every up-to-date client offer a downgrade.
+            if [ "$previous" = "$VERSION" ]; then
+              echo "::error::updates/${SYSTEM_ID}.json already publishes $VERSION."
+              exit 1
+            fi
+            newest=$(printf '%s\n%s\n' "$previous" "$VERSION" | sort -V | tail -1)
+            if [ "$newest" != "$VERSION" ]; then
+              echo "::error::Version $VERSION is older than the published $previous."
+              exit 1
+            fi
+          fi
+
+          # Put a line reading exactly "mandatory: true" in the release notes to force it.
+          mandatory=false
+          if grep -qiE '^[[:space:]]*mandatory:[[:space:]]*true[[:space:]]*$' <<< "$BODY"; then
+            mandatory=true
+          fi
+
+          mkdir -p updates
+          jq -n \
+            --arg systemId "$SYSTEM_ID" \
+            --arg version "$VERSION" \
+            --arg publishedAt "$PUBLISHED_AT" \
+            --arg minimumVersion "$minimum_version" \
+            --arg packageUrl "https://github.com/${REPO}/releases/download/${TAG}/${asset}" \
+            --arg sha256 "$sha256" \
+            --arg releaseNotesUrl "https://github.com/${REPO}/releases/tag/${TAG}" \
+            --argjson mandatory "$mandatory" \
+            '{systemId: $systemId, version: $version, publishedAt: $publishedAt,
+              minimumVersion: $minimumVersion, packageUrl: $packageUrl, sha256: $sha256,
+              releaseNotesUrl: $releaseNotesUrl, mandatory: $mandatory}' \
+            > "$manifest"
+
+          cat "$manifest"
+          echo "manifest=$manifest" >> "$GITHUB_OUTPUT"
+
+      - name: Commit the manifest
+        env:
+          MANIFEST: ${{ steps.build.outputs.manifest }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$MANIFEST"
+
+          if git diff --cached --quiet; then
+            echo "Manifest unchanged; nothing to commit."
+            exit 0
+          fi
+
+          git commit -m "Publish $TAG manifest"
+
+          # Another release may have landed while this one built.
+          for attempt in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            echo "Push attempt $attempt failed; retrying."
+            sleep 5
+          done
+
+          echo "::error::Could not push the manifest after three attempts."
+          exit 1
