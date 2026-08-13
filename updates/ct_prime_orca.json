@@ -1,0 +1,10 @@
+{
+  "systemId": "ct_prime_orca",
+  "version": "2026.08.03",
+  "publishedAt": "2026-08-13T20:44:07Z",
+  "minimumVersion": "2026.01.01",
+  "packageUrl": "https://github.com/ct-csharp/releases/releases/download/ct_prime_orca-2026.08.03/CodeTec-Prime-Orca-Setup-2026.08.03.msi",
+  "sha256": "f0a193d2faf43de247d58dd30c6d2204a821305fe351a62877ede258f1723ca8",
+  "releaseNotesUrl": "https://github.com/ct-csharp/releases/releases/tag/ct_prime_orca-2026.08.03",
+  "mandatory": false
+}
