@@ -1,10 +1,10 @@
 {
   "systemId": "ct_prime",
-  "version": "2026.08.14",
-  "publishedAt": "2026-08-14T16:45:42Z",
+  "version": "2026.08.18",
+  "publishedAt": "2026-08-17T21:16:48Z",
   "minimumVersion": "2026.01.01",
-  "packageUrl": "https://github.com/ct-csharp/releases/releases/download/ct_prime-2026.08.14/CodeTec-Prime-Setup-2026.08.14.msi",
-  "sha256": "204a6b06e11039d9c3736d65ebe38a108b22e630acf28fe74ff01410f3303a94",
-  "releaseNotesUrl": "https://github.com/ct-csharp/releases/releases/tag/ct_prime-2026.08.14",
+  "packageUrl": "https://github.com/ct-csharp/releases/releases/download/ct_prime-2026.08.18/CodeTec-Prime-Setup-2026.08.18.msi",
+  "sha256": "24c77f232e006ea80ce7921852488ee4bbe00a8351abac1c02e8d113a24a2583",
+  "releaseNotesUrl": "https://github.com/ct-csharp/releases/releases/tag/ct_prime-2026.08.18",
   "mandatory": false
 }
