@@ -1,10 +1,10 @@
 {
   "systemId": "ct_flowstock",
-  "version": "2026.09.05",
-  "publishedAt": "2026-09-04T23:05:33Z",
+  "version": "2026.09.21",
+  "publishedAt": "2026-09-21T06:57:25Z",
   "minimumVersion": "2026.01.01",
-  "packageUrl": "https://github.com/ct-csharp/releases/releases/download/ct_flowstock-2026.09.05/CodeTec-FlowStock-Setup-2026.09.05.msi",
-  "sha256": "9f9130a5d8d9a00a8b08e06c98ecece16ab06e7f4a5983cfd5186494f2d02379",
-  "releaseNotesUrl": "https://github.com/ct-csharp/releases/releases/tag/ct_flowstock-2026.09.05",
+  "packageUrl": "https://github.com/ct-csharp/releases/releases/download/ct_flowstock-2026.09.21/CodeTec-FlowStock-Setup-2026.09.21.msi",
+  "sha256": "6285aed2958d872a7a4b5193f8cdd05bac052855be0d323cdfd7a089c5db2828",
+  "releaseNotesUrl": "https://github.com/ct-csharp/releases/releases/tag/ct_flowstock-2026.09.21",
   "mandatory": false
 }
