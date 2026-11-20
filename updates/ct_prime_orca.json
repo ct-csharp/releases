@@ -1,10 +1,10 @@
 {
   "systemId": "ct_prime_orca",
-  "version": "2026.11.13",
-  "publishedAt": "2026-11-13T13:50:07Z",
+  "version": "2026.11.19",
+  "publishedAt": "2026-11-20T10:50:20Z",
   "minimumVersion": "2026.01.01",
-  "packageUrl": "https://github.com/ct-csharp/releases/releases/download/ct_prime_orca-2026.11.13/CodeTec-Prime-Orca-Setup-2026.11.13.msi",
-  "sha256": "b3e62fbbf41abab6656869c868f4aa307ba829d656f8a2cf48292eb55da5ded1",
-  "releaseNotesUrl": "https://github.com/ct-csharp/releases/releases/tag/ct_prime_orca-2026.11.13",
+  "packageUrl": "https://github.com/ct-csharp/releases/releases/download/ct_prime_orca-2026.11.19/CodeTec-Prime-Orca-Setup-2026.11.19.msi",
+  "sha256": "bdffa37ba56efcfbc070f73a987a710c7900d93a1cddcc1a35c28af4c09a5f52",
+  "releaseNotesUrl": "https://github.com/ct-csharp/releases/releases/tag/ct_prime_orca-2026.11.19",
   "mandatory": false
 }
